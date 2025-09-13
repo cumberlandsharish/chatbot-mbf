@@ -35,11 +35,18 @@
       input.value = "";
 
       // Send to backend
-      const response = await fetch("/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: message })
-      });
+      // Send to backend (Flask API)
+        const response = await fetch("/api/messages", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: message })
+        });
+
+<!--      const response = await fetch("/chat", {-->
+<!--        method: "POST",-->
+<!--        headers: { "Content-Type": "application/json" },-->
+<!--        body: JSON.stringify({ text: message })-->
+<!--      });-->
 
       const data = await response.json();
       displayMessage(data.reply, "bot");
