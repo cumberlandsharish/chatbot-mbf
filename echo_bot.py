@@ -1,5 +1,5 @@
 # echo_bot.py
-from bot_logic import BotLogic
+from bot_logic_azure_support import BotLogic
 
 class EchoBot:
     def __init__(self):
