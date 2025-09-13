@@ -1,36 +1,19 @@
-import os
-from flask import Flask, request, Response
-from botbuilder.core import BotFrameworkAdapterSettings, BotFrameworkAdapter, TurnContext
-from botbuilder.schema import Activity
-from echo_bot import RuleBot
+from flask import Flask, request, jsonify, render_template
+from echo_bot import  EchoBot
 
-APP = Flask(__name__)
+app = Flask(__name__)
+bot = EchoBot()
 
-# Adapter settings (leave blank for local testing)
-settings = BotFrameworkAdapterSettings(
-    os.environ.get("MicrosoftAppId", ""), 
-    os.environ.get("MicrosoftAppPassword", "")
-)
-adapter = BotFrameworkAdapter(settings)
-bot = RuleBot()
-
-@APP.route("/api/messages", methods=["POST"])
+@app.route("/api/messages", methods=["POST"])
 def messages():
-    if "application/json" in request.headers["Content-Type"]:
-        body = request.json
-    else:
-        return Response(status=415)
+    user_message = request.json.get("text", "")
+    reply = bot.on_message(user_message)
+    return jsonify({"reply": reply})
 
-    activity = Activity().deserialize(body)
-    auth_header = request.headers.get("Authorization", "")
-
-    async def aux_func(turn_context: TurnContext):
-        await bot.on_turn(turn_context)
-
-    task = adapter.process_activity(activity, auth_header, aux_func)
-    task.result()
-    return Response(status=201)
+# Serve the chat UI
+@app.route("/chat")
+def chat():
+    return render_template("chat.html")
 
 if __name__ == "__main__":
-    APP.run(port=int(os.environ.get("PORT", 3978)))
-
+    app.run(host="127.0.0.1", port=3978)
